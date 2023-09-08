@@ -1,0 +1,13 @@
+load --os ../spl/spl_progs/stage15/startup.xsm
+load --init ../expl/expl_progs/oddnos.xsm
+load --module 7 ../spl/spl_progs/stage15/bootmod.xsm
+load --library ../expl/library.lib
+load --module 5 ../spl/spl_progs/stage15/scheduler.xsm
+load --int=timer ../spl/spl_progs/stage15/timer.xsm
+load --int=7 ../spl/spl_progs/stage15/int7.xsm
+load --int=10 ../spl/spl_progs/stage15/int10.xsm
+load --exhandler ../spl/spl_progs/haltprog.xsm
+load --idle ../expl/expl_progs/idle.xsm
+load --exec ../expl/expl_progs/evennos.xsm
+load --module 0 ../spl/spl_progs/stage15/mod0.xsm
+load --module 4 ../spl/spl_progs/stage15/devman.xsm

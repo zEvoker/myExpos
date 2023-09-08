@@ -1,0 +1,16 @@
+alias i R0;
+alias current R1;
+
+current = [SYSTEM_STATUS_TABLE+1];
+[PROCESS_TABLE+(current*16)+4]=TERMINATED;
+
+i=1;
+while(i<16 && [PROCESS_TABLE+(i*16)+4]==TERMINATED) do
+    i=i+1;
+endwhile;
+
+if(i==16) then
+    halt;
+endif;
+
+call MOD_5;
