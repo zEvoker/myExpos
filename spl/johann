@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+
+foldername=$1;
+
+for FILE in $foldername/*.spl; do
+    echo $FILE;
+    ./spl $FILE;
+done
