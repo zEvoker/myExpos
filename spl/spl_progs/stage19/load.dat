@@ -1,0 +1,21 @@
+load --os ../spl/spl_progs/stage19/startup.xsm
+load --init ../expl/expl_progs/execvvv.xsm
+load --module 7 ../spl/spl_progs/stage19/bootmod.xsm
+load --library ../expl/library.lib
+load --module 5 ../spl/spl_progs/stage19/scheduler.xsm
+load --int=timer ../spl/spl_progs/stage19/timer.xsm
+load --int=7 ../spl/spl_progs/stage19/int7.xsm
+load --int=10 ../spl/spl_progs/stage19/int10.xsm
+load --exhandler ../spl/spl_progs/stage19/exhandler.xsm
+load --idle ../expl/expl_progs/idle.xsm
+load --module 0 ../spl/spl_progs/stage19/mod0.xsm
+load --module 4 ../spl/spl_progs/stage19/devman.xsm
+load --int=6 ../spl/spl_progs/stage19/int6.xsm
+load --int=console ../spl/spl_progs/stage19/int3.xsm
+load --int=9 ../spl/spl_progs/stage19/int9.xsm
+load --module 1 ../spl/spl_progs/stage19/mod1.xsm
+load --module 2 ../spl/spl_progs/stage19/mod2.xsm
+load --exec ../expl/expl_progs/ll.xsm
+load --int=disk ../spl/spl_progs/stage19/int2.xsm
+load --exec ../expl/expl_progs/oddnos.xsm
+load --exec ../expl/expl_progs/evennos.xsm

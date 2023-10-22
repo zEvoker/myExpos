@@ -1,0 +1,20 @@
+load --os ../spl/spl_progs/stage18/startup.xsm
+load --init ../expl/expl_progs/oddnos.xsm
+load --module 7 ../spl/spl_progs/stage18/bootmod.xsm
+load --library ../expl/library.lib
+load --module 5 ../spl/spl_progs/stage18/scheduler.xsm
+load --int=timer ../spl/spl_progs/stage18/timer.xsm
+load --int=7 ../spl/spl_progs/stage18/int7.xsm
+load --int=10 ../spl/spl_progs/stage18/int10.xsm
+load --exhandler ../spl/spl_progs/haltprog.xsm
+load --idle ../expl/expl_progs/idle.xsm
+load --module 0 ../spl/spl_progs/stage18/mod0.xsm
+load --module 4 ../spl/spl_progs/stage18/devman.xsm
+load --int=6 ../spl/spl_progs/stage18/int6.xsm
+load --int=console ../spl/spl_progs/stage18/int3.xsm
+load --int=9 ../spl/spl_progs/stage18/int9.xsm
+load --module 1 ../spl/spl_progs/stage18/mod1.xsm
+load --module 2 ../spl/spl_progs/stage18/mod2.xsm
+load --exec ../expl/expl_progs/oddnos.xsm
+load --exec ../expl/expl_progs/evennos.xsm
+load --int=disk ../spl/spl_progs/stage18/int2.xsm
