@@ -1,0 +1,162 @@
+//user manager
+alias userSP R1;
+alias curPID R2;
+alias processTable R3;
+userSP=SP;
+curPID=[SYSTEM_STATUS_TABLE+1];
+processTable=PROCESS_TABLE+16*curPID;
+
+[processTable+13]=SP;
+SP=[processTable+11]*512-1;
+
+alias syscall R4;
+syscall=[[PTBR+2*(userSP-5)/512]*512+(userSP-5)%512];
+
+[processTable+9]=syscall;
+
+//new user
+if(syscall==22) then
+    if([SYSTEM_STATUS_TABLE]!=1 || curPID!=2) then
+        R11=-2;
+        goto ex;
+    endif;
+    alias uname R5;
+    alias pswd R6;
+    uname=[[PTBR+2*(userSP-4)/512]*512+(userSP-4)%512];
+    pswd=[[PTBR+2*(userSP-3)/512]*512+(userSP-3)%512];
+    alias i R7;
+    i=1;
+    while(i<MAX_USER_NUM) do
+        if([USER_TABLE+2*i]==uname) then
+            R11=-1;
+            goto ex;
+        endif;
+        i=i+1;
+    endwhile;
+    i=1;
+    while(i<MAX_USER_NUM) do
+        if([USER_TABLE+2*i]==-1) then
+            break;
+        endif;
+        i=i+1;
+    endwhile;
+    if(i==MAX_USER_NUM) then
+        R11=-3;
+        goto ex;
+    endif;
+    encrypt pswd;
+    [USER_TABLE+2*i]=uname;
+    [USER_TABLE+2*i+1]=pswd;
+    R11=0;
+    goto ex;
+endif;
+
+//remove user
+if(syscall==23) then
+    if([SYSTEM_STATUS_TABLE]!=1 || curPID!=2) then
+        R11=-2;
+        goto ex;
+    endif;
+    alias uname R5;
+    uname=[[PTBR+2*(userSP-4)/512]*512+(userSP-4)%512];
+    if(uname=="root" || uname=="kernel") then
+        R11=-2;
+        goto ex;
+    endif;
+    alias i R6;
+    i=1;
+    while(i<MAX_USER_NUM) do
+        if([USER_TABLE+2*i]==uname) then
+            break;
+        endif;
+        i=i+1;
+    endwhile;
+    if(i==MAX_USER_NUM) then
+        R11=-1;
+        goto ex;
+    endif;
+    alias j R7;
+    j=0;
+    while(j<MAX_FILE_NUM) do
+        if([ROOT_FILE+8*j+3]==uname) then
+            R11=-3;
+            goto ex;
+        endif;
+        j=j+1;
+    endwhile;
+    [USER_TABLE+2*i]=-1;
+    [USER_TABLE+2*i+1]=-1;
+    R11=0;
+    goto ex;
+endif;
+
+//set password
+if(syscall==24) then
+    if(curPID!=2) then
+        R11=-1;
+        goto ex;
+    endif;
+    alias uname R5;
+    alias pswd R6;
+    uname=[[PTBR+2*(userSP-4)/512]*512+(userSP-4)%512];
+    pswd=[[PTBR+2*(userSP-3)/512]*512+(userSP-3)%512];
+    alias i R7;
+    i=1;
+    while(i<MAX_USER_NUM) do
+        if([USER_TABLE+2*i]==uname) then
+            break;
+        endif;
+        i=i+1;
+    endwhile;
+    if(i==MAX_USER_NUM) then
+        R11=-2;
+        goto ex;
+    endif;
+    if(i!=[processTable+3]) then
+        if([processTable+3]!=1) then
+            R11=-1;
+            goto ex;
+        endif;
+    endif;
+    encrypt pswd;
+    [USER_TABLE+2*i+1]=pswd;
+    R11=0;
+    goto ex;
+endif;
+
+//get user name
+if(syscall==25) then
+    alias id R5;
+    id=[[PTBR+2*(userSP-4)/512]*512+(userSP-4)%512];
+    if(id<0 || id>15) then
+        R11=-1;
+        goto ex;
+    endif;
+    if([USER_TABLE+2*id]==-1) then
+        R11=-1;
+        goto ex;
+    endif;
+    R11=[USER_TABLE+2*id];
+    goto ex;
+endif;
+
+//get id
+if(syscall==26) then
+    alias uname R5;
+    uname=[[PTBR+2*(userSP-4)/512]*512+(userSP-4)%512];
+    alias i R6;
+    i=0;
+    while(i<MAX_USER_NUM) do
+        if([USER_TABLE+2*i]==uname) then
+            R11=i;
+            goto ex;
+        endif;
+        i=i+1;
+    endwhile;
+    R11=-1;
+endif;
+ex:
+    [[PTBR+2*(userSP-1)/512]*512+(userSP-1)%512]=R11;
+    SP=[processTable+13];
+    [processTable+9]=0;
+    ireturn; 

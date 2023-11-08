@@ -1,0 +1,43 @@
+//logout
+alias userSP R1;
+alias curPID R2;
+alias processTable R3;
+userSP=SP;
+curPID=[SYSTEM_STATUS_TABLE+1];
+processTable=PROCESS_TABLE+curPID*16;
+
+[processTable+13]=SP;
+SP=[processTable+11]*512-1;
+[processTable+9]=28;
+
+if(curPID!=2) then
+    SP=userSP;
+    [processTable+9]=0;
+    [[PTBR+2*(userSP-1)/512]*512+(userSP-1)%512]=-1;
+    ireturn;
+endif;
+
+multipush(R1,R2,R3);
+R1=KILL_ALL;
+R2=curPID;
+call PROCESS_MANAGER;
+multipop(R1,R2,R3);
+
+[processTable+4]=TERMINATED;
+
+//ip reset shell
+[[PTBR+16]*512]=[[PTBR+8]*512+1];
+//userSP reset shell
+[processTable+13]=4096;
+
+[PROCESS_TABLE+20]=READY; 
+//login
+[SYSTEM_STATUS_TABLE]=0; 
+//kernel
+
+call MOD_5;
+
+SP=userSP;
+[processTable+9]=0;
+[[PTBR+2*(userSP-1)/512]*512+(userSP-1)%512]=0;
+ireturn;

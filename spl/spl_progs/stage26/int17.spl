@@ -1,0 +1,66 @@
+//login
+alias userSP R1;
+alias curPID R2;
+alias processTable R3;
+userSP=SP;
+curPID=[SYSTEM_STATUS_TABLE+1];
+processTable=PROCESS_TABLE+curPID*16;
+
+[processTable+13]=SP;
+SP=[processTable+11]*512-1;
+[processTable+9]=27;
+
+if(curPID!=1) then
+    SP=userSP;
+    [processTable+9]=0;
+    [[PTBR+2*(userSP-1)/512]*512+(userSP-1)%512]=-2;
+    ireturn;
+endif;
+
+alias uname R5;
+alias pswd R6;
+uname=[[PTBR+2*(userSP-4)/512]*512+(userSP-4)%512];
+pswd=[[PTBR+2*(userSP-3)/512]*512+(userSP-3)%512];
+
+alias i R4;
+i=1;
+while(i<MAX_USER_NUM) do
+    if([USER_TABLE+2*i]==uname) then
+        break;
+    endif;
+    i=i+1;
+endwhile;
+
+if(i==MAX_USER_NUM) then
+    SP=userSP;
+    [processTable+9]=0;
+    [[PTBR+2*(userSP-1)/512]*512+(userSP-1)%512]=-1;
+    ireturn;
+endif;
+
+encrypt pswd;
+
+if([USER_TABLE+2*i+1]!=pswd) then
+    SP=userSP;
+    [processTable+9]=0;
+    [[PTBR+2*(userSP-1)/512]*512+(userSP-1)%512]=-1;
+    ireturn;
+endif;
+
+//initialize shell
+[PROCESS_TABLE+35]=i;
+[PROCESS_TABLE+36]=CREATED;
+
+[processTable+4]=WAIT_PROCESS;
+[processTable+5]=2;
+
+[SYSTEM_STATUS_TABLE]=i;
+
+multipush(R1,R2,R3,R4,R5);
+call MOD_5;
+multipop(R1,R2,R3,R4,R5);
+
+SP=userSP;
+[processTable+9]=0;
+[[PTBR+2*(userSP-1)/512]*512+(userSP-1)%512]=0;
+ireturn;
